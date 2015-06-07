@@ -26,4 +26,8 @@ lval* lval_sexpr(void);
 lval* lval_pexpr(void);
 
 void lval_del(lval* v);
+
+lval* lval_pop(lval* v, int i); 
+
+lval* lval_take(lval* v, int i); 
 #endif

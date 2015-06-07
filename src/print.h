@@ -2,6 +2,6 @@
 #define _PRINT_H_
 #include "lval.h"
 
-void lval_read(lval* v);
+void lval_print(lval* v);
 
 #endif

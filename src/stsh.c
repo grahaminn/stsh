@@ -7,13 +7,14 @@
 static char buffer[2048];
 
 /* Fake readline function */
-char* readline(char* prompt) {
-  fputs(prompt, stdout);
-  fgets(buffer, 2048, stdin);
-  char* cpy = malloc(strlen(buffer)+1);
-  strcpy(cpy, buffer);
-  cpy[strlen(cpy)-1] = '\0';
-  return cpy;
+char* readline(char* prompt) 
+{
+	fputs(prompt, stdout);
+	fgets(buffer, 2048, stdin);
+	char* cpy = malloc(strlen(buffer)+1);
+	strcpy(cpy, buffer);
+	cpy[strlen(cpy)-1] = '\0';
+	return cpy;
 }
 
 /* Fake add_history function */
@@ -32,28 +33,26 @@ void add_history(char* unused) {}
 #include <eval.h>
 #include <print.h>
 
-mpc_parser_t* number = mpc_new("number");
-mpc_parser_t* symbol = mpc_new("symbol");
-mpc_parser_t* sexpr  = mpc_new("sexpr");
-mpc_parser_t* pexpr = mpc_new("pexpr");
-mpc_parser_t* expr = mpc_new("expr");
-mpc_parser_t* stsh = mpc_new("stsh");
-
-mpca_lang(MPCA_LANG_DEFAULT,
-"														\
-    number	: /-?[0-9]+/ ;								\
-    symbol	: /[a-zA-Z0-9_+\\-*\\/\\\\=<>!&]+/ ;		\
-	sexpr	: '(' <expr>* ')' ;							\
-	pexpr	: '[' <expr>* ']' ;							\
-    expr    : <number> | <symbol> | <sexpr> | <pexpr> ;	\
-    stsh    : /^/ <expr>* /$/ ;							\
-  ",
-  number, symbol, sexpr, pexpr, expr, stsh);
-
-
 int main(int argc, char **argv) 
 {
-    puts("stsh version 0.0.1"); 
+	mpc_parser_t* number = mpc_new("number");
+	mpc_parser_t* symbol = mpc_new("symbol");
+	mpc_parser_t* sexpr  = mpc_new("sexpr");
+	mpc_parser_t* pexpr = mpc_new("pexpr");
+	mpc_parser_t* expr = mpc_new("expr");
+	mpc_parser_t* stsh = mpc_new("stsh");
+
+	mpca_lang(MPCA_LANG_DEFAULT,
+	"													\
+    number  : /-?[0-9]+/ ;                              \
+    symbol  : /[a-zA-Z0-9_+\\-*\\/\\\\=<>!&]+/ ;        \
+    sexpr   : '(' <expr>* ')' ;                         \
+    pexpr   : '[' <expr>* ']' ;                         \
+    expr    : <number> | <symbol> | <sexpr> | <pexpr> ; \
+    stsh    : /^/ <expr>* /$/ ;                         \
+	", number, symbol, sexpr, pexpr, expr, stsh);
+    
+	puts("stsh version 0.0.1"); 
     
     while (1)
     {
@@ -64,7 +63,7 @@ int main(int argc, char **argv)
 		if (mpc_parse("<stdin>", input, Lispy, &r)) 
 		{
 			lval* x = lval_eval(lval_read(r.output));
-			lval_println(x);
+			lval_print(x);
 			lval_del(x);
 			mpc_ast_delete(r.output);
 		} 
