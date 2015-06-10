@@ -1,3 +1,7 @@
+CFLAGS=-c -Wall -ledit
+
+LDFLAGS=
+
 lval.o: src/lval.h src/lval.c
 	cc -c src/lval.c
 
@@ -13,6 +17,8 @@ print.o: src/print.h src/print.c
 mpc.o: src/libs/mpc/mpc.h src/libs/mpc/mpc.c
 	cc -c src/libs/mpc/mpc.c
 
-stsh: lval.o read.o eval.o print.o mpc.o src/stsh.c
-	cc src/stsh.c
+stsh: mpc.o lval.o read.o eval.o print.o src/stsh.c
+	cc -ledit src/stsh.c
 
+clean:
+	rm *.o stsh
