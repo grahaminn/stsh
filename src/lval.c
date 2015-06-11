@@ -1,4 +1,5 @@
 #include "lval.h"
+#include <stdlib.h>
 #include <string.h>
 
 /* Construct a pointer to a new Number lval */ 
@@ -41,7 +42,7 @@ lval* lval_sexpr(void)
 }
 
 /* A pointer to a new empty Pexpr lval */
-lval* lval_sexpr(void) 
+lval* lval_pexpr(void) 
 {
 	lval* v = malloc(sizeof(lval));
 	v->type = LVAL_PEXPR;
@@ -101,4 +102,12 @@ lval* lval_take(lval* v, int i)
 	lval* x = lval_pop(v, i);
 	lval_del(v);
 	return x;
+}
+
+lval* lval_add(lval* v, lval* x) 
+{
+	v->count++;
+ 	v->cell = realloc(v->cell, sizeof(lval*) * v->count);
+	v->cell[v->count-1] = x;
+	return v;
 }

@@ -19,7 +19,7 @@ lval* lval_num(long x);
 
 lval* lval_err(char* m);
 
-lval* lval_symbol(char *s);
+lval* lval_sym(char *s);
 
 lval* lval_sexpr(void);
 
@@ -30,4 +30,6 @@ void lval_del(lval* v);
 lval* lval_pop(lval* v, int i); 
 
 lval* lval_take(lval* v, int i); 
+
+lval* lval_add(lval* v, lval* x);
 #endif

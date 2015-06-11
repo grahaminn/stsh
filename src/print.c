@@ -1,4 +1,5 @@
 #include "print.h"
+#include <stdio.h>
 
 void lval_expr_print(lval* v, char open, char close) 
 {

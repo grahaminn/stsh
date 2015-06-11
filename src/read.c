@@ -11,24 +11,24 @@ lval* lval_read_num(mpc_ast_t* t)
 lval* lval_read(mpc_ast_t* tree)
 {
 	/* If Symbol or Number return conversion to that type */
-	if (strstr(t->tag, "number")) { return lval_read_num(t); }
-	if (strstr(t->tag, "symbol")) { return lval_sym(t->contents); }
+	if (strstr(tree->tag, "number")) { return lval_read_num(tree); }
+	if (strstr(tree->tag, "symbol")) { return lval_sym(tree->contents); }
   
 	/* If root (>) or sexpr then create empty list */
 	lval* x = NULL;
-	if (strcmp(t->tag, ">") == 0) { x = lval_sexpr(); } 
-	if (strstr(t->tag, "sexpr"))  { x = lval_sexpr(); }
-	if (strstr(t->tag, "pexpr"))  { x = lval_pexpr(); }
+	if (strcmp(tree->tag, ">") == 0) { x = lval_sexpr(); } 
+	if (strstr(tree->tag, "sexpr"))  { x = lval_sexpr(); }
+	if (strstr(tree->tag, "pexpr"))  { x = lval_pexpr(); }
   
 	/* Fill this list with any valid expression contained within */
-	for (int i = 0; i < t->children_num; i++) 
+	for (int i = 0; i < tree->children_num; i++) 
 	{
-		if (strcmp(t->children[i]->contents, "(") == 0) { continue; }
-		if (strcmp(t->children[i]->contents, ")") == 0) { continue; }
-		if (strcmp(t->children[i]->contents, "]") == 0) { continue; }
-		if (strcmp(t->children[i]->contents, "[") == 0) { continue; }
-		if (strcmp(t->children[i]->tag,  "regex") == 0) { continue; }
-		x = lval_add(x, lval_read(t->children[i]));
+		if (strcmp(tree->children[i]->contents, "(") == 0) { continue; }
+		if (strcmp(tree->children[i]->contents, ")") == 0) { continue; }
+		if (strcmp(tree->children[i]->contents, "]") == 0) { continue; }
+		if (strcmp(tree->children[i]->contents, "[") == 0) { continue; }
+		if (strcmp(tree->children[i]->tag,  "regex") == 0) { continue; }
+		x = lval_add(x, lval_read(tree->children[i]));
 	}
   
 	return x;

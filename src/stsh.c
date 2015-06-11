@@ -28,10 +28,11 @@ void add_history(char* unused) {}
 #include <editline/history.h>
 #endif
 
-#include <libs/mpc/mpc.h>
-#include <read.h>
-#include <eval.h>
-#include <print.h>
+#include "libs/mpc/mpc.h"
+#include "lval.h"
+#include "read.h"
+#include "eval.h"
+#include "print.h"
 
 int main(int argc, char **argv) 
 {
@@ -60,7 +61,7 @@ int main(int argc, char **argv)
     
         add_history(input);
 		mpc_result_t r;
-		if (mpc_parse("<stdin>", input, Lispy, &r)) 
+		if (mpc_parse("<stdin>", input, stsh, &r)) 
 		{
 			lval* x = lval_eval(lval_read(r.output));
 			lval_print(x);
