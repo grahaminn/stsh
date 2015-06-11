@@ -51,6 +51,16 @@ lval* lval_pexpr(void)
 	return v;
 }
 
+/*A point to a new empty Qexpr lval */
+lval* lval_qexpr(void)
+{
+	lval* v = malloc(sizeof(lval));
+	v->type = LVAL_QEXPR;
+	v->count = 0;
+	v->cell = NULL;
+	return v;
+}
+
 void lval_del(lval* v) 
 {
 
@@ -64,9 +74,10 @@ void lval_del(lval* v)
 		case LVAL_SYM: free(v->sym); break;
 
 	
-		/* If Sexpr or Pexpr then delete all elements inside */
-		case LVAL_SEXPR:
+		/* If P|Q|Sexpr then delete all elements inside */
 		case LVAL_PEXPR:
+		case LVAL_QEXPR:
+		case LVAL_SEXPR:
 			for (int i = 0; i < v->count; i++) 
 			{
 				lval_del(v->cell[i]);
