@@ -74,10 +74,10 @@ int main(int argc, char **argv)
 			mpc_err_delete(r.error);
 		}
 
-        free(input);
-    }
+		free(input);
+	}
 	
 	/* Undefine and Delete our Parsers */
 	mpc_cleanup(6, number, symbol, sexpr, pexpr, expr, stsh);
-    return 0;
+	return 0;
 }
