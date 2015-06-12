@@ -1,7 +1,7 @@
 #ifndef _LVAL_H_
 #define _LVAL_H_
 
-enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_SEXPR, LVAL_PEXPR};
+enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_SEXPR, LVAL_PEXPR, LVAL_QEXPR};
 
 typedef struct lval 
 {
@@ -24,6 +24,8 @@ lval* lval_sym(char *s);
 lval* lval_sexpr(void);
 
 lval* lval_pexpr(void);
+
+lval* lval_qexpr(void);
 
 void lval_del(lval* v);
 
