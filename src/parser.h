@@ -6,7 +6,6 @@ mpc_parser_t* number = NULL;
 mpc_parser_t* symbol = NULL;
 mpc_parser_t* sexpr  = NULL;
 mpc_parser_t* pexpr = NULL;
-mpc_parser_t* qexpr = NULL;
 mpc_parser_t* expr = NULL;
 mpc_parser_t* stsh = NULL;
 
@@ -16,7 +15,6 @@ void init_parser(void)
 	symbol = mpc_new("symbol");
 	sexpr  = mpc_new("sexpr");
 	pexpr = mpc_new("pexpr");
-	qexpr = mpc_new("qexpr");
 	expr = mpc_new("expr");
 	stsh = mpc_new("stsh");
 
@@ -27,7 +25,6 @@ void init_parser(void)
 	symbol  : /[a-zA-Z0-9_+\\-*\\/\\\\=<>!&]+/ ;					\
 	sexpr   : '(' <expr>* ')' ;										\
 	pexpr   : '[' <expr>* ']' ;										\
-	qexpr	: '{' <expr>* '}' ;										\
 	expr    : <number> | <symbol> | <sexpr> | <pexpr> | <qexpr> ;	\
 	stsh    : /^/ <expr>* /$/ ;										\
 	", number, symbol, sexpr, pexpr, qexpr, expr, stsh);
@@ -35,6 +32,6 @@ void init_parser(void)
 
 void parser_cleanup(void)
 {
-	mpc_cleanup(7, number, symbol, sexpr, pexpr, qexpr, expr, stsh);
+	mpc_cleanup(7, number, symbol, sexpr, pexpr, expr, stsh);
 }
 #endif
