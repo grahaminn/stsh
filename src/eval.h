@@ -1,8 +1,9 @@
 #ifndef _EVAL_H_
 #define _EVAL_H_
 #include "libs/mpc/mpc.h"
-#include "lval.h"
+#include "cell.h"
+#include "environment.h"
 
-lval* lval_eval(lval* val);
+cell* eval_cell(environment* env, cell* c);
 
 #endif

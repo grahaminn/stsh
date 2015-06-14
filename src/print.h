@@ -1,7 +1,7 @@
 #ifndef _PRINT_H_
 #define _PRINT_H_
-#include "lval.h"
+#include "cell.h"
 
-void lval_print(lval* v);
+void print_cell(cell* v);
 
 #endif
