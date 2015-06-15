@@ -1,3 +1,4 @@
+#include <apr_pools.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -29,7 +30,8 @@ void add_history(char* unused) {}
 #endif
 
 #include "libs/mpc/mpc.h"
-#include "lval.h"
+#include "environment.h"
+#include "cell.h"
 #include "read.h"
 #include "eval.h"
 #include "print.h"
@@ -37,20 +39,24 @@ void add_history(char* unused) {}
 
 int main(int argc, char **argv) 
 {
+	apr_pool_t* pool = NULL;
+	apr_pool_initialize();
+	apr_pool_create(&pool, NULL);
+
+	environment* env = environment_new(pool);
 	init_parser();
 	puts("stsh version 0.0.1"); 
     
-    	while (1)
-    	{
+    while (1)
+    {
 		char *input = readline("stsh> ");
     
 		add_history(input);
 		mpc_result_t r;
 		if (mpc_parse("<stdin>", input, stsh, &r)) 
 		{
-			lval* x = lval_eval(lval_read(r.output));
-			lval_print(x);
-			lval_del(x);
+			cell* x = eval_cell(env, read_cell(r.output));
+			print_cell(x);
 			mpc_ast_delete(r.output);
 		} 
 		else 
@@ -63,5 +69,6 @@ int main(int argc, char **argv)
 	
 	/* Undefine and Delete our Parsers */
 	parser_cleanup();
+	apr_pool_destroy(pool);
 	return 0;
 }

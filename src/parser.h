@@ -25,9 +25,9 @@ void init_parser(void)
 	symbol  : /[a-zA-Z0-9_+\\-*\\/\\\\=<>!&]+/ ;					\
 	sexpr   : '(' <expr>* ')' ;										\
 	pexpr   : '[' <expr>* ']' ;										\
-	expr    : <number> | <symbol> | <sexpr> | <pexpr> | <qexpr> ;	\
+	expr    : <number> | <symbol> | <sexpr> | <pexpr> ;	\
 	stsh    : /^/ <expr>* /$/ ;										\
-	", number, symbol, sexpr, pexpr, qexpr, expr, stsh);
+	", number, symbol, sexpr, pexpr, expr, stsh);
 }
 
 void parser_cleanup(void)
