@@ -41,4 +41,6 @@ cell* pop_cell(apr_pool_t* pool, cell* v, int i);
 cell* take_cell(apr_pool_t* pool, cell* v, int i); 
 
 cell* add_cell(apr_pool_t* pool, cell* v, cell* x);
+
+cell* copy_cell(apr_pool_t* pool, cell* c);
 #endif
