@@ -1,6 +1,6 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
-#include "libs/mpc/mpc.h"
+#include "mpc.h"
 
 mpc_parser_t* number = NULL;
 mpc_parser_t* symbol = NULL;

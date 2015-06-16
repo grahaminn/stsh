@@ -1,7 +1,8 @@
 #ifndef _ENVIRONMENT_H_
 #define _ENVIRONMENT_H_
-#include <apr_hash.h>
+
 #include "cell.h"
+#include <apr_hash.h>
 
 struct environment 
 {

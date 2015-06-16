@@ -29,7 +29,7 @@ void add_history(char* unused) {}
 #include <editline/history.h>
 #endif
 
-#include "libs/mpc/mpc.h"
+#include "mpc.h"
 #include "environment.h"
 #include "cell.h"
 #include "read.h"
@@ -47,15 +47,15 @@ int main(int argc, char **argv)
 	init_parser();
 	puts("stsh version 0.0.1"); 
     
-    while (1)
-    {
+	while (1)
+	{
 		char *input = readline("stsh> ");
     
 		add_history(input);
 		mpc_result_t r;
 		if (mpc_parse("<stdin>", input, stsh, &r)) 
 		{
-			cell* x = eval_cell(env, read_cell(r.output));
+			cell* x = eval_cell(pool, env, read_cell(pool, r.output));
 			print_cell(x);
 			mpc_ast_delete(r.output);
 		} 

@@ -11,3 +11,8 @@ void environment_put(environment* env, cell* key, cell* value)
 {
 	/* */
 }
+
+cell* environment_get(environment* env, cell* key)
+{
+	return NULL;
+}
