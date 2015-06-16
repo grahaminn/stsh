@@ -3,41 +3,42 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 /* Construct a pointer to a new Number cell */ 
 cell* num_cell(apr_pool_t* pool, long x) 
 {
-	cell* v = apr_palloc(pool, sizeof(cell));
-	v->type = NUM_CELL;
-	v->num = x;
-	return v;
+	cell* c = apr_palloc(pool, sizeof(cell));
+	c->type = NUM_CELL;
+	c->num = x;
+	return c;
 }
 
 /* Construct a pointer to a new Error cell */ 
 cell* err_cell(apr_pool_t* pool, char* m) 
 {
-	cell* v = apr_palloc(pool, sizeof(cell));
-	v->type = ERR_CELL;
-	v->err = malloc(strlen(m) + 1);
-	strcpy(v->err, m);
-	return v;
+	cell* c = apr_palloc(pool, sizeof(cell));
+	c->type = ERR_CELL;
+	c->err = apr_palloc(pool, strlen(m) + 1);
+	strcpy(c->err, m);
+	return c;
 }
 
 /* Construct a pointer to a new Symbol lval */ 
 cell* sym_cell(apr_pool_t* pool, char* s) 
 {
-	cell* v = apr_palloc(pool, sizeof(cell));
-	v->type = SYM_CELL;
-	v->sym = apr_palloc(pool, strlen(s) + 1);
-	strcpy(v->sym, s);
-	return v;
+	cell* c = apr_palloc(pool, sizeof(cell));
+	c->type = SYM_CELL;
+	c->sym = apr_palloc(pool, strlen(s) + 1);
+	strcpy(c->sym, s);
+	return c;
 }
 
 cell* fun_cell(apr_pool_t* pool, lbuiltin func) 
 {
-	cell* v = apr_palloc(pool, sizeof(cell));
-	v->type = FUN_CELL;
-	v->fun = func;
-	return v;
+	cell* c = apr_palloc(pool, sizeof(cell));
+	c->type = FUN_CELL;
+	c->fun = func;
+	return c;
 }
 
 /* A pointer to a new empty Sexpr lval */
@@ -89,6 +90,18 @@ cell* add_cell(apr_pool_t* pool, cell* v, cell* x)
  	v->cells = realloc(v->cells, sizeof(cell*) * v->count);
 	v->cells[v->count-1] = x;
 	return v;
+}
+
+cell* join_cell(apr_pool_t* pool, cell* x, cell* y) 
+{
+	/* For each cell in 'y' add it to 'x' */
+	while (y->count) 
+	{
+		add_cell(pool, x, pop_cell(pool, y, 0));
+	}
+
+	/* Delete the empty 'y' and return 'x' */
+	return x;
 }
 
 cell* copy_cell(apr_pool_t* pool, cell* v)

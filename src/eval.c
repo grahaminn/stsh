@@ -1,48 +1,5 @@
 #include "eval.h"
 
-cell* builtin_op(apr_pool_t* pool, cell* a, char* op) 
-{
-  
-	/* Ensure all arguments are numbers */
-	for (int i = 0; i < a->count; i++) 
-	{
-		if (a->cells[i]->type != NUM_CELL) 
-		{
-			return err_cell(pool, "Cannot operate on non-number!");
-		}
-	}
-  
-	/* Pop the first element */
-	cell* x = pop_cell(pool, a, 0);
-
-	/* If no arguments and sub then perform unary negation */
-	if ((strcmp(op, "-") == 0) && a->count == 0) 
-	{
-		x->num = -x->num;
-	}
-
-	/* While there are still elements remaining */
-	while (a->count > 0) 
-	{
-
-		/* Pop the next element */
-		cell* y = pop_cell(pool, a, 0);
-
-		if (strcmp(op, "+") == 0) { x->num += y->num; }
-		if (strcmp(op, "-") == 0) { x->num -= y->num; }
-		if (strcmp(op, "*") == 0) { x->num *= y->num; }
-		if (strcmp(op, "/") == 0) 
-		{
-			if (y->num == 0) 
-			{
-				x = err_cell(pool, "Division By Zero!"); break;
-			}
-			x->num /= y->num;
-		}
-	}
-	return x;
-}
-
 cell* sexpr_cell_eval(apr_pool_t* pool, environment* env, cell* v) 
 {
   
@@ -72,7 +29,7 @@ cell* sexpr_cell_eval(apr_pool_t* pool, environment* env, cell* v)
 	}
   
 	/* Call builtin with operator */
-	cell* result = f->fun(env, v);
+	cell* result = f->fun(pool, env, v);
 	return result;
 }
 
@@ -87,7 +44,7 @@ cell* eval_cell(apr_pool_t* pool, environment* env, cell* v)
 	/* Evaluate Sexpressions */
 	if (v->type == SYM_CELL)
 	{
-		cell* x = environment_get(env, v);
+		cell* x = environment_get(pool, env, v);
 		return x;
 	}
 	if (v->type == SEXPR_CELL) { return sexpr_cell_eval(pool, env, v); }

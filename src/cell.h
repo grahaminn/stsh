@@ -8,7 +8,7 @@ struct cell;
 typedef struct environment environment;
 typedef struct cell cell;
 
-typedef cell* (*lbuiltin) (environment*, cell*);
+typedef cell* (*lbuiltin) (apr_pool_t*, environment*, cell*);
 
 enum { ERR_CELL, NUM_CELL, SYM_CELL, FUN_CELL, SEXPR_CELL, PEXPR_CELL};
 
@@ -26,6 +26,8 @@ typedef struct cell
 	struct cell** cells;
 } cell;
 
+cell* fun_cell(apr_pool_t* pool, lbuiltin func);
+
 cell* num_cell(apr_pool_t* pool, long x);
 
 cell* err_cell(apr_pool_t* pool, char* m);
@@ -35,6 +37,8 @@ cell* sym_cell(apr_pool_t* pool, char *s);
 cell* sexpr_cell(apr_pool_t* pool);
 
 cell* pexpr_cell(apr_pool_t* pool);
+
+cell* join_cell(apr_pool_t* pool, cell* x, cell* y);
 
 cell* pop_cell(apr_pool_t* pool, cell* v, int i); 
 
