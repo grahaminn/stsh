@@ -11,6 +11,6 @@ struct environment
 };
 
 environment* environment_new(apr_pool_t* poll);
-cell* environment_get(apr_pool_t* evaluation_pool, environment* env, cell* key);
-void environment_put(environment* env, cell* key, cell* value);
+cell* environment_get(apr_pool_t* evaluation_pool, environment* env, char* key);
+void environment_put(environment* env, char* key, cell* value);
 #endif 

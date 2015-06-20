@@ -1,4 +1,7 @@
+#include <apr_strings.h>
+
 #include "environment.h"
+
 
 environment* environment_new(apr_pool_t* pool)
 {
@@ -8,20 +11,20 @@ environment* environment_new(apr_pool_t* pool)
 	return env;
 }
 
-void environment_put(environment* env, cell* key, cell* value)
+void environment_put(environment* env, char* key, cell* value)
 {
-	apr_hash_set(env->key_value_hash, key->sym, APR_HASH_KEY_STRING, copy_cell(env->pool, value));
+	apr_hash_set(env->key_value_hash, apr_pstrdup(env->pool, key), APR_HASH_KEY_STRING, copy_cell(env->pool, value));
 }
 
-cell* environment_get(apr_pool_t* evaluation_pool, environment* env, cell* key)
+cell* environment_get(apr_pool_t* evaluation_pool, environment* env, char* key)
 {
-	cell* hash_result = apr_hash_get(env->key_value_hash, key->sym, APR_HASH_KEY_STRING);
+	cell* hash_result = apr_hash_get(env->key_value_hash, key, APR_HASH_KEY_STRING);
 	if (hash_result != NULL)
 	{
-		return copy_cell(env->pool, hash_result);
+		return copy_cell(evaluation_pool, hash_result);
 	}
 	else
 	{
-		return err_cell(evaluation_pool, "unbound symbol!");
+		return NULL;
 	}	 
 }

@@ -1,5 +1,7 @@
 #include "environment.h"
 #include "cell.h"
+#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -14,12 +16,15 @@ cell* num_cell(apr_pool_t* pool, long x)
 }
 
 /* Construct a pointer to a new Error cell */ 
-cell* err_cell(apr_pool_t* pool, char* m) 
+cell* err_cell(apr_pool_t* pool, char* fmt, ...) 
 {
 	cell* c = apr_palloc(pool, sizeof(cell));
 	c->type = ERR_CELL;
-	c->err = apr_palloc(pool, strlen(m) + 1);
-	strcpy(c->err, m);
+	va_list va;
+	va_start(va, fmt);
+	c->err = apr_palloc(pool, 512);
+	vsnprintf(c->err, 511, fmt, va);
+	va_end(va);
 	return c;
 }
 
@@ -31,6 +36,14 @@ cell* sym_cell(apr_pool_t* pool, char* s)
 	c->sym = apr_palloc(pool, strlen(s) + 1);
 	strcpy(c->sym, s);
 	return c;
+}
+
+cell* halting_fun_cell(apr_pool_t* pool, lbuiltin func)
+{
+	cell* c = apr_palloc(pool, sizeof(cell));
+        c->type = HALTING_FUN_CELL;
+        c->fun = func;
+        return c;
 }
 
 cell* fun_cell(apr_pool_t* pool, lbuiltin func) 
@@ -108,35 +121,26 @@ cell* copy_cell(apr_pool_t* pool, cell* v)
 {
 	cell* x = apr_palloc(pool, sizeof(cell));
 	x->type = v->type;
-
-	switch (v->type)
+	if (v->sym != NULL)
 	{
-
-		/* Copy Functions and Numbers directly */	
-		case FUN_CELL: x->fun = v->fun; break;
-		case NUM_CELL: x->num = v->num; break;
-
-		/* Copy Strings using malloc and strcpy */
-		case ERR_CELL:
-			x->err = apr_palloc(pool, strlen(v->err) + 1);
-			strcpy(x->err, v->err);
-			break;
-
-		case SYM_CELL:
-			x->sym = apr_palloc(pool, strlen(v->sym) + 1);
-			strcpy(x->sym, v->sym);
-			break;
-
-		/* Copy Lists by copying each sub-expression */
-		case PEXPR_CELL:
-		case SEXPR_CELL:
-			x->count = v->count;
-			x->cells = apr_palloc(pool, sizeof(cell*) * x->count);
-			for (int i = 0; i < x->count; i++)
-			{
-				x->cells[i] = copy_cell(pool, v->cells[i]);
-			}
-			break;
+		x->sym = apr_palloc(pool, strlen(v->sym) + 1);
+		strcpy(x->sym, v->sym);
 	}
+	if (v->sym != NULL)
+	{
+		x->err = apr_palloc(pool, strlen(v->err) + 1);
+                strcpy(x->err, v->err);
+	}
+	x->num = v->num;
+	x->count = v->count;
+	if (x->count > 0)
+	{
+		x->cells = apr_palloc(pool, sizeof(cell*) * x->count);
+		for (int i = 0; i < x->count; i++)
+		{
+			x->cells[i] = copy_cell(pool, v->cells[i]);
+		}
+	}
+	x->fun = v->fun;
 	return x;
 }

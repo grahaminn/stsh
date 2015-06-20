@@ -6,7 +6,6 @@
 
 cell* builtin_op(apr_pool_t* pool, cell* a, char* op) 
 {
-  
 	/* Ensure all arguments are numbers */
 	for (int i = 0; i < a->count; i++) 
 	{
@@ -69,9 +68,14 @@ cell* builtin_div(apr_pool_t* pool, environment* env, cell* a)
 
 void add_builtin(environment* env, char* name, lbuiltin func)
 {
-        cell* key = sym_cell(env->pool, name);
         cell* value = fun_cell(env->pool, func);
-        environment_put(env, key, value);
+        environment_put(env, name, value);
+}
+
+void add_halting_builtin(environment* env, char* name, lbuiltin func)
+{
+        cell* value = halting_fun_cell(env->pool, func);
+        environment_put(env, name, value);
 }
 
 cell* builtin_car(apr_pool_t* pool, environment* env, cell* a) 
@@ -124,7 +128,7 @@ cell* builtin_cdr(apr_pool_t* pool, environment* env, cell* a)
 
 cell* builtin_eval(apr_pool_t* pool, environment* env, cell* a) 
 {
-	LASSERT(pool, a, a->count == 1, "Function 'eval' passed too many arguments!");
+	LASSERT(pool, a, a->count == 1, "Function 'eval' passed too many arguments! Got %i expected %i", a->count, 1);
 	LASSERT(pool, a, a->cells[0]->type == SEXPR_CELL, "Function 'eval' passed incorrect type!");
 
 	cell* x = take_cell(pool, a, 0);
@@ -150,29 +154,28 @@ cell* builtin_list(apr_pool_t* pool, environment* env, cell* a)
 	return x;
 }
 
+cell* builtin_if(apr_pool_t* pool, environment* env, cell* a)
+{
+	return NULL;
+}
+
 cell* builtin_define(apr_pool_t* pool, environment* env, cell* a) 
 {
-	LASSERT(pool, a, a->cells[0]->type == SYM_CELL, "Function 'def' passed incorrect type!");
+	LASSERT(pool, a, a->cells[0]->type == SYM_CELL, "Function 'define' passed incorrect type!");
 
 	/* First argument is symbol list */
-	cell* syms = a->cells[0];
+	cell* name = pop_cell(pool, a, 0);
 
-	/* Ensure all elements of first list are symbols */
-	for (int i = 0; i < syms->count; i++) 
-	{
-		LASSERT(pool, a, syms->cells[i]->type == SYM_CELL, "Function 'define' cannot define non-symbol");
-	}
+	LASSERT(pool, a, name->type == SYM_CELL, "Function 'define' cannot define non-symbol");
 
 	/* Check correct number of symbols and values */
-	LASSERT(pool, a, syms->count == a->count-1, "Function 'def' cannot define incorrect number of values to symbols");
+	LASSERT(pool, a, a->count == 1, "Function 'define' cannot define incorrect number of values to symbols, value count: %i", a->count);
 
-	/* Assign copies of values to symbols */
-	for (int i = 0; i < syms->count; i++) 
-	{
-		environment_put(env, syms->cells[i], a->cells[i+1]);
-	}
+	cell* popped_cell = pop_cell(pool, a, 0);
+	cell* value_cell = eval_cell(pool, env, popped_cell);
+	environment_put(env, name->sym, copy_cell(pool, value_cell));
 
-	return sexpr_cell(pool);
+	return value_cell;
 }
 
 
@@ -184,6 +187,7 @@ void add_builtins(environment* env)
 	add_builtin(env, "eval", builtin_eval);
 	add_builtin(env, "list", builtin_list);
 	add_builtin(env, "define", builtin_define);
+	add_halting_builtin(env, "if", builtin_if);
 
         /* Mathematical Functions */
 	add_builtin(env, "+", builtin_add);

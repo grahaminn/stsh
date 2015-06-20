@@ -30,7 +30,6 @@ cell* read_cell(apr_pool_t* pool, mpc_ast_t* tree)
 		if (strcmp(tree->children[i]->tag,  "regex") == 0) { continue; }
 		x = add_cell(pool, x, read_cell(pool, tree->children[i]));
 	}
-  
 	return x;
 }
 

@@ -10,7 +10,7 @@ typedef struct cell cell;
 
 typedef cell* (*lbuiltin) (apr_pool_t*, environment*, cell*);
 
-enum { ERR_CELL, NUM_CELL, SYM_CELL, FUN_CELL, SEXPR_CELL, PEXPR_CELL};
+enum { ERR_CELL, NUM_CELL, SYM_CELL, HALTING_FUN_CELL, FUN_CELL, SEXPR_CELL, PEXPR_CELL};
 
 typedef struct cell 
 {
@@ -21,16 +21,18 @@ typedef struct cell
 	char* sym;
 	lbuiltin fun;
 
-	/* Count and Pointer to a list of "lval*" */
+	/* Count and Pointer to a list of "cell*" */
 	int count;
 	struct cell** cells;
 } cell;
+
+cell* halting_fun_cell(apr_pool_t* pool, lbuiltin func);
 
 cell* fun_cell(apr_pool_t* pool, lbuiltin func);
 
 cell* num_cell(apr_pool_t* pool, long x);
 
-cell* err_cell(apr_pool_t* pool, char* m);
+cell* err_cell(apr_pool_t* pool, char* fmt, ...);
 
 cell* sym_cell(apr_pool_t* pool, char *s);
 

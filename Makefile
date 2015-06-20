@@ -1,5 +1,5 @@
 PREFIX?=/usr/local
-CFLAGS=-std=c11 -Wall -I${PREFIX}/apr/include/apr-1 -Iinclude/mpc
+CFLAGS=-std=c11 -Wall -g -I${PREFIX}/apr/include/apr-1 -Iinclude/mpc
 LDFLAGS=-L${PREFIX}/apr/lib -lapr-1 -ledit
 
 mpc.o: include/mpc/mpc.c
