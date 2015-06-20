@@ -29,7 +29,8 @@ void add_history(char* unused) {}
 #include <editline/history.h>
 #endif
 
-#include "libs/mpc/mpc.h"
+#include "mpc.h"
+#include "builtins.h"
 #include "environment.h"
 #include "cell.h"
 #include "read.h"
@@ -39,25 +40,31 @@ void add_history(char* unused) {}
 
 int main(int argc, char **argv) 
 {
-	apr_pool_t* pool = NULL;
+	apr_initialize();
 	apr_pool_initialize();
-	apr_pool_create(&pool, NULL);
+	apr_pool_t* environment_pool = NULL;
+	apr_pool_create(&environment_pool, NULL);
 
-	environment* env = environment_new(pool);
+	environment* env = environment_new(environment_pool);
 	init_parser();
+	add_builtins(env);
 	puts("stsh version 0.0.1"); 
     
-    while (1)
-    {
+	while (1)
+	{
 		char *input = readline("stsh> ");
     
 		add_history(input);
 		mpc_result_t r;
 		if (mpc_parse("<stdin>", input, stsh, &r)) 
 		{
-			cell* x = eval_cell(env, read_cell(r.output));
+			apr_pool_t* eval_pool = NULL;
+			apr_pool_create(&eval_pool, NULL);
+			cell* x = eval_cell(eval_pool, env, read_cell(eval_pool, r.output));
 			print_cell(x);
+			puts("");
 			mpc_ast_delete(r.output);
+			apr_pool_destroy(eval_pool);
 		} 
 		else 
 		{    
@@ -69,6 +76,7 @@ int main(int argc, char **argv)
 	
 	/* Undefine and Delete our Parsers */
 	parser_cleanup();
-	apr_pool_destroy(pool);
+	apr_pool_destroy(environment_pool);
+	apr_terminate();
 	return 0;
 }

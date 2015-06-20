@@ -1,27 +1,16 @@
-CFLAGS=-c -Wall -ledit
+PREFIX?=/usr/local
+CFLAGS=-std=c11 -Wall -g -I${PREFIX}/apr/include/apr-1 -Iinclude/mpc
+LDFLAGS=-L${PREFIX}/apr/lib -lapr-1 -ledit
 
-LDFLAGS=
+mpc.o: include/mpc/mpc.c
+	cc -c include/mpc/mpc.c -o mpc.o
 
-lval.o: src/lval.c
-	cc -c src/lval.c -o build/lval.o
+my_objects :=  $(patsubst %.c,%.o,$(wildcard src/*.c))
 
-read.o: src/read.c
-	cc -c src/read.c -o build/read.o
+stsh: $(my_objects) mpc.o
+	cc $(CFLAGS) $(LDFLAGS) $(my_objects) mpc.o -o stsh
 
-eval.o: src/eval.c
-	cc -c src/eval.c -o build/eval.o
-
-print.o: src/print.c
-	cc -c src/print.c -o build/print.o
-
-mpc.o: src/libs/mpc/mpc.c
-	cc -c src/libs/mpc/mpc.c -o build/mpc.o
-
-stsh.o: src/stsh.c
-	cc -c src/stsh.c -o build/stsh.o
-
-stsh: mpc.o lval.o read.o eval.o print.o stsh.o
-	cc -o stsh -ledit build/*.o
+all: stsh
 
 clean:
 	rm stsh build/*
