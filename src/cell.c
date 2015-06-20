@@ -126,7 +126,7 @@ cell* copy_cell(apr_pool_t* pool, cell* v)
 		x->sym = apr_palloc(pool, strlen(v->sym) + 1);
 		strcpy(x->sym, v->sym);
 	}
-	if (v->sym != NULL)
+	if (v->err != NULL)
 	{
 		x->err = apr_palloc(pool, strlen(v->err) + 1);
                 strcpy(x->err, v->err);
