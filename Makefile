@@ -2,15 +2,26 @@ PREFIX?=/usr/local
 CFLAGS=-std=c11 -Wall -g -I${PREFIX}/apr/include/apr-1 -Iinclude/mpc
 LDFLAGS=-L${PREFIX}/apr/lib -lapr-1 -ledit
 
-mpc.o: include/mpc/mpc.c
-	cc -c include/mpc/mpc.c -o mpc.o
+SOURCEDIR = src
+BUILDDIR = build
+EXECUTABLE = stsh
 
-my_objects :=  $(patsubst %.c,%.o,$(wildcard src/*.c))
+SOURCES = $(wildcard $(SOURCEDIR)/*.c)
+OBJECTS = $(patsubst $(SOURCEDIR)/%.c, $(BUILDDIR)/%.o,$(SOURCES))
 
-stsh: $(my_objects) mpc.o
-	cc $(CFLAGS) $(LDFLAGS) $(my_objects) mpc.o -o stsh
+all: dir $(BUILDDIR)/$(EXECUTABLE)
 
-all: stsh
+dir:
+	mkdir -p $(BUILDDIR)
+
+$(BUILDDIR)/$(EXECUTABLE): $(OBJECTS) $(BUILDDIR)/mpc.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
+
+$(OBJECTS): $(BUILDDIR)/%.o : $(SOURCEDIR)/%.c
+	$(CC) -c $(CFLAGS) $(LDFLAGS) $< -o $@
+
+$(BUILDDIR)/mpc.o: include/mpc/mpc.c
+	$(CC) -c include/mpc/mpc.c -o $(BUILDDIR)/mpc.o
 
 clean:
-	rm stsh build/*
+	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/$(EXECUTABLE)
