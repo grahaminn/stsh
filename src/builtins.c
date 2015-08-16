@@ -3,16 +3,19 @@
 #include "builtins.h"
 #include "cell.h"
 #include "eval.h"
+#include "print.h"
 
 cell* builtin_op(apr_pool_t* pool, cell* a, char* op) 
 {
 	/* Ensure all arguments are numbers */
-	for (int i = 0; i < a->count; i++) 
+	cell* child = a->first_child;
+	while(child != NULL) 
 	{
-    		if (a->cells[i]->type != NUM_CELL) 
+    	if (child->type != NUM_CELL) 
 		{
-      			return err_cell(pool, "Cannot operate on non-number!");
-    		}
+      		return err_cell(pool, "Cannot operate on non-number!");
+    	}
+		child = child->next_sibling;
   	}
   
 	/* Pop the first element */
@@ -30,7 +33,6 @@ cell* builtin_op(apr_pool_t* pool, cell* a, char* op)
 
 		/* Pop the next element */
 		cell* y = pop_cell(pool, a, 0);
-
 		if (strcmp(op, "+") == 0) { x->num += y->num; }
 		if (strcmp(op, "-") == 0) { x->num -= y->num; }
 		if (strcmp(op, "*") == 0) { x->num *= y->num; }
@@ -86,18 +88,18 @@ cell* builtin_car(apr_pool_t* pool, environment* env, cell* a)
 		return err_cell(pool, "Function 'car' passed too many arguments!");
 	}
   
-	if (a->cells[0]->type != SEXPR_CELL) 
+	if (a->first_child->type != SEXPR_CELL) 
 	{
 		return err_cell(pool, "Function 'car' passed incorrect types!");
 	}
   
-	if (a->cells[0]->count == 0) 
+	if (a->first_child->count == 0) 
 	{
 		return err_cell(pool, "Function 'car' passed {}!");
 	}
 
 	/* Otherwise take first argument */
-	cell* c = take_cell(pool, a, 0);
+	cell* c = pop_cell(pool, a, 0);
 	return c;
 }
 
@@ -109,18 +111,18 @@ cell* builtin_cdr(apr_pool_t* pool, environment* env, cell* a)
 		return err_cell(pool, "Function 'cdr' passed too many arguments!");
 	}
   
-	if (a->cells[0]->type != SEXPR_CELL) 
+	if (a->first_child->type != SEXPR_CELL) 
 	{
 		return err_cell(pool, "Function 'cdr' passed incorrect types!");
 	}  
   
-	if (a->cells[0]->count == 0) // tail of empty list is empty list
+	if (a->first_child->count == 0) // tail of empty list is empty list
 	{
-		return a->cells[0];
+		return a->first_child;
 	}
 
 	/* Take first argument */
-	cell* c = take_cell(pool, a, 0);
+	cell* c = pop_cell(pool, a, 0);
 
 	/* Delete first element and return */
 	return c;
@@ -129,9 +131,9 @@ cell* builtin_cdr(apr_pool_t* pool, environment* env, cell* a)
 cell* builtin_eval(apr_pool_t* pool, environment* env, cell* a) 
 {
 	LASSERT(pool, a, a->count == 1, "Function 'eval' passed too many arguments! Got %i expected %i", a->count, 1);
-	LASSERT(pool, a, a->cells[0]->type == SEXPR_CELL, "Function 'eval' passed incorrect type!");
+	LASSERT(pool, a, a->first_child->type == SEXPR_CELL, "Function 'eval' passed incorrect type!");
 
-	cell* x = take_cell(pool, a, 0);
+	cell* x = pop_cell(pool, a, 0);
 	x->type = SEXPR_CELL;
 	return eval_cell(pool, env, x);
 }
@@ -139,9 +141,12 @@ cell* builtin_eval(apr_pool_t* pool, environment* env, cell* a)
 cell* builtin_list(apr_pool_t* pool, environment* env, cell* a) 
 {
 
-	for (int i = 0; i < a->count; i++) 
+	cell* child = a->first_child;
+	while (child != NULL) 
 	{
-		LASSERT(pool, a, a->cells[i]->type == SEXPR_CELL, "Function 'join' passed incorrect type.");
+		
+		LASSERT(pool, a, child->type == SEXPR_CELL, "Function 'join' passed incorrect type.");
+		child = child->next_sibling;
 	}
 
 	cell* x = pop_cell(pool, a, 0);
@@ -161,7 +166,7 @@ cell* builtin_if(apr_pool_t* pool, environment* env, cell* a)
 
 cell* builtin_define(apr_pool_t* pool, environment* env, cell* a) 
 {
-	LASSERT(pool, a, a->cells[0]->type == SYM_CELL, "Function 'define' passed incorrect type!");
+	LASSERT(pool, a, a->first_child->type == SYM_CELL, "Function 'define' passed incorrect type!");
 
 	/* First argument is symbol list */
 	cell* name = pop_cell(pool, a, 0);

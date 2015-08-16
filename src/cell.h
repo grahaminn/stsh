@@ -23,7 +23,9 @@ typedef struct cell
 
 	/* Count and Pointer to a list of "cell*" */
 	int count;
-	struct cell** cells;
+	struct cell* first_child;
+	struct cell* last_child;
+	struct cell* next_sibling;
 } cell;
 
 cell* halting_fun_cell(apr_pool_t* pool, lbuiltin func);
@@ -43,8 +45,6 @@ cell* pexpr_cell(apr_pool_t* pool);
 cell* join_cell(apr_pool_t* pool, cell* x, cell* y);
 
 cell* pop_cell(apr_pool_t* pool, cell* v, int i); 
-
-cell* take_cell(apr_pool_t* pool, cell* v, int i); 
 
 cell* add_cell(apr_pool_t* pool, cell* v, cell* x);
 

@@ -1,5 +1,6 @@
 #include "environment.h"
 #include "cell.h"
+#include "print.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +12,7 @@ cell* num_cell(apr_pool_t* pool, long x)
 {
 	cell* c = apr_palloc(pool, sizeof(cell));
 	c->type = NUM_CELL;
+	c->next_sibling = NULL;
 	c->num = x;
 	return c;
 }
@@ -20,6 +22,7 @@ cell* err_cell(apr_pool_t* pool, char* fmt, ...)
 {
 	cell* c = apr_palloc(pool, sizeof(cell));
 	c->type = ERR_CELL;
+	c->next_sibling = NULL;
 	va_list va;
 	va_start(va, fmt);
 	c->err = apr_palloc(pool, 512);
@@ -33,6 +36,7 @@ cell* sym_cell(apr_pool_t* pool, char* s)
 {
 	cell* c = apr_palloc(pool, sizeof(cell));
 	c->type = SYM_CELL;
+	c->next_sibling = NULL;
 	c->sym = apr_palloc(pool, strlen(s) + 1);
 	strcpy(c->sym, s);
 	return c;
@@ -41,15 +45,17 @@ cell* sym_cell(apr_pool_t* pool, char* s)
 cell* halting_fun_cell(apr_pool_t* pool, lbuiltin func)
 {
 	cell* c = apr_palloc(pool, sizeof(cell));
-        c->type = HALTING_FUN_CELL;
-        c->fun = func;
-        return c;
+	c->type = HALTING_FUN_CELL;
+	c->next_sibling = NULL;
+	c->fun = func;
+	return c;
 }
 
 cell* fun_cell(apr_pool_t* pool, lbuiltin func) 
 {
 	cell* c = apr_palloc(pool, sizeof(cell));
 	c->type = FUN_CELL;
+	c->next_sibling = NULL;
 	c->fun = func;
 	return c;
 }
@@ -60,7 +66,9 @@ cell* sexpr_cell(apr_pool_t* pool)
 	cell* v = apr_palloc(pool, sizeof(cell));
 	v->type = SEXPR_CELL;
 	v->count = 0;
-	v->cells = NULL;
+	v->first_child = NULL;
+	v->last_child = NULL;
+	v->next_sibling = NULL;
 	return v;
 }
 
@@ -70,50 +78,83 @@ cell* pexpr_cell(apr_pool_t* pool)
 	cell* v = apr_palloc(pool, sizeof(cell));
 	v->type = PEXPR_CELL;
 	v->count = 0;
-	v->cells = NULL;
+	v->first_child = NULL;
+	v->last_child = NULL;
+	v->next_sibling = NULL;
 	return v;
 }
 
 cell* pop_cell(apr_pool_t* pool, cell* v, int i) 
 {
+	if (v->count == 0) {	printf("v->count == 0 \n");  return NULL; }
 	/* Find the item at "i" */
-	cell* x = v->cells[i];
-  
-	/* Shift memory after the item at "i" over the top */
-	memmove(&v->cells[i], &v->cells[i+1],
-	sizeof(cell*) * (v->count-i-1));
-  
+	cell* child = v->first_child;
+	cell* result = NULL;
+	
+	if (i == 0) 
+	{
+		result = child;
+	
+		if (child->next_sibling != NULL)
+		{
+			v->first_child = child->next_sibling;
+		}
+		else
+		{
+			v->first_child = NULL;
+			v->last_child = NULL;
+		}
+	}
+	else
+	{
+		while (child != NULL && --i > 0)
+		{
+			if (i == 0)
+			{
+				result = child->next_sibling;
+				if (result->next_sibling == NULL)
+				{
+					v->last_child = child;
+				}
+				child->next_sibling = child->next_sibling->next_sibling;
+			}
+			else
+			{
+				child = child->next_sibling;
+			}
+		}
+	}
 	/* Decrease the count of items in the list */
-	v->count--;
-  
-	/* Reallocate the memory used */
-	v->cells = realloc(v->cells, sizeof(cell*) * v->count);
-	return x;
-}
-
-cell* take_cell(apr_pool_t* pool, cell* v, int i) 
-{
-	cell* x = pop_cell(pool, v, i);
-	return x;
+	--(v->count);
+	return result;
 }
 
 cell* add_cell(apr_pool_t* pool, cell* v, cell* x) 
 {
-	v->count++;
- 	v->cells = realloc(v->cells, sizeof(cell*) * v->count);
-	v->cells[v->count-1] = x;
+	cell* child = v->first_child;
+	if (child == NULL)
+	{	
+		v->first_child = x;
+		v->last_child = x;
+	}
+	else
+	{
+		v->last_child->next_sibling = x;
+		v->last_child = x;
+	}
+	++(v->count);	
 	return v;
 }
 
 cell* join_cell(apr_pool_t* pool, cell* x, cell* y) 
 {
 	/* For each cell in 'y' add it to 'x' */
-	while (y->count) 
+	int count = y->count;
+	while (count--) 
 	{
 		add_cell(pool, x, pop_cell(pool, y, 0));
 	}
 
-	/* Delete the empty 'y' and return 'x' */
 	return x;
 }
 
@@ -132,13 +173,13 @@ cell* copy_cell(apr_pool_t* pool, cell* v)
                 strcpy(x->err, v->err);
 	}
 	x->num = v->num;
-	x->count = v->count;
-	if (x->count > 0)
+	if (v->count > 0)
 	{
-		x->cells = apr_palloc(pool, sizeof(cell*) * x->count);
-		for (int i = 0; i < x->count; i++)
+		cell* vcell = v->first_child;
+		while (vcell != NULL)
 		{
-			x->cells[i] = copy_cell(pool, v->cells[i]);
+			add_cell(pool, x,  copy_cell(pool, vcell));
+			vcell = vcell->next_sibling;
 		}
 	}
 	x->fun = v->fun;

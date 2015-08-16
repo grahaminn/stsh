@@ -4,13 +4,12 @@
 void cell_expr_print(cell* v, char open, char close) 
 {
 	putchar(open);
-	for (int i = 0; i < v->count; i++) 
+	cell* child = v->first_child;
+	while (child != NULL)
 	{
-		/* Print Value contained within */
-		print_cell(v->cells[i]);
-
-		/* Don't print trailing space if last element */
-		if (i != (v->count-1)) 
+		print_cell(child);
+		child = child->next_sibling;
+		if (child != NULL)
 		{
 			putchar(' ');
 		}

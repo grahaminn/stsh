@@ -24,4 +24,4 @@ $(BUILDDIR)/mpc.o: include/mpc/mpc.c
 	$(CC) -c include/mpc/mpc.c -o $(BUILDDIR)/mpc.o
 
 clean:
-	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/$(EXECUTABLE)
+	rm -f $(BUILDDIR)/*

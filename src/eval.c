@@ -1,28 +1,43 @@
 #include "eval.h"
+#include "print.h"
 
 cell* sexpr_cell_eval(apr_pool_t* pool, environment* env, cell* v) 
 {
 	/* Evaluate Children */
-	for (int i = 0; i < v->count; i++) 
-	{
-		v->cells[i] = eval_cell(pool, env, v->cells[i]);
+	cell* child = v->first_child;
+	cell* next = child->next_sibling;
+	child = eval_cell(pool, env, child);
+	v->first_child = child;
+	v->first_child->next_sibling = next;
+
+	while (next != NULL) 
+	{	
+		cell* evaluated = eval_cell(pool, env, next);
+		child->next_sibling = evaluated;
+		child = evaluated;
+		next = next->next_sibling;
 	}
-		
-	for (int i = 0; i < v-> count; i++)
+	v->last_child=child;
+
+	child = v->first_child;
+    int i = 0;		
+	while(child != NULL)
 	{
-		if (v->cells[i]->type == ERR_CELL) { return take_cell(pool, v, i); }
+		if (child->type == ERR_CELL) { return pop_cell(pool, v, i); }
+		child = child->next_sibling;
+		++i;
 	}
 
 	/* Empty Expression */
-        if (v->count == 0) { return v; }
+    if (v->count == 0) { return v; }
 
-        /* Single Expression */
-        if (v->count == 1) { return take_cell(pool, v, 0); }
+    /* Single Expression */
+    if (v->count == 1) { return pop_cell(pool, v, 0); }
  	cell* f = pop_cell(pool, v, 0);
 	if (f->type != FUN_CELL && f->type != HALTING_FUN_CELL)
-        {
-                return err_cell(pool, "first element is not a function.");
-        }
+    {
+		return err_cell(pool, "first element is not a function.");
+    }
 	return f->fun(pool, env, v);
 }
 
