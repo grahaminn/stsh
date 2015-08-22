@@ -8,4 +8,4 @@ This project is built with SCons http://www.scons.org/
 Dependencies:-
 
 Apache Portable Runtime https://apr.apache.org/
-Libedit http://sourceforge.net/projects/libedit/
+Libedit http://thrysoee.dk/editline/
