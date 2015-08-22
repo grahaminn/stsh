@@ -38,7 +38,7 @@ cell* sexpr_cell_eval(apr_pool_t* pool, environment* env, cell* v)
     {
 		return err_cell(pool, "first element is not a function.");
     }
-	return f->fun(pool, env, v);
+	return f->builtin(pool, env, v);
 }
 
 cell* pexpr_cell_eval(apr_pool_t* pool, environment* env, cell *v)

@@ -15,11 +15,18 @@ enum { ERR_CELL, NUM_CELL, SYM_CELL, HALTING_FUN_CELL, FUN_CELL, SEXPR_CELL, PEX
 typedef struct cell 
 {
 	int type;
+
+	/* Primitive */
 	long num;
 	/* Error and Symbol types have some string data */
 	char* err;
 	char* sym;
-	lbuiltin fun;
+
+	/* Function */
+	lbuiltin builtin;
+	environment* env;
+	cell* formals;
+	cell* body;
 
 	/* Count and Pointer to a list of "cell*" */
 	int count;
@@ -31,6 +38,8 @@ typedef struct cell
 cell* halting_fun_cell(apr_pool_t* pool, lbuiltin func);
 
 cell* fun_cell(apr_pool_t* pool, lbuiltin func);
+
+cell* lambda_cell(apr_pool_t* pool, cell* formals, cell* body);
 
 cell* num_cell(apr_pool_t* pool, long x);
 

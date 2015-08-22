@@ -71,13 +71,13 @@ cell* builtin_div(apr_pool_t* pool, environment* env, cell* a)
 void add_builtin(environment* env, char* name, lbuiltin func)
 {
         cell* value = fun_cell(env->pool, func);
-        environment_put(env, name, value);
+        environment_global_define(env, name, value);
 }
 
 void add_halting_builtin(environment* env, char* name, lbuiltin func)
 {
         cell* value = halting_fun_cell(env->pool, func);
-        environment_put(env, name, value);
+        environment_global_define(env, name, value);
 }
 
 cell* builtin_car(apr_pool_t* pool, environment* env, cell* a) 
@@ -178,11 +178,10 @@ cell* builtin_define(apr_pool_t* pool, environment* env, cell* a)
 
 	cell* popped_cell = pop_cell(pool, a, 0);
 	cell* value_cell = eval_cell(pool, env, popped_cell);
-	environment_put(env, name->sym, copy_cell(pool, value_cell));
+	environment_global_define(env, name->sym, copy_cell(pool, value_cell));
 
 	return value_cell;
 }
-
 
 void add_builtins(environment* env)
 { 
@@ -191,6 +190,8 @@ void add_builtins(environment* env)
 	add_builtin(env, "cdr", builtin_cdr);
 	add_builtin(env, "eval", builtin_eval);
 	add_builtin(env, "list", builtin_list);
+
+		/* language primitives */
 	add_builtin(env, "define", builtin_define);
 	add_halting_builtin(env, "if", builtin_if);
 

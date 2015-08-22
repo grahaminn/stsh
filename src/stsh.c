@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 	apr_pool_t* environment_pool = NULL;
 	apr_pool_create(&environment_pool, NULL);
 
-	environment* env = environment_new(environment_pool);
+	environment* env = environment_new(environment_pool, NULL);
 	init_parser();
 	add_builtins(env);
 	puts("stsh version 0.0.1"); 

@@ -42,22 +42,35 @@ cell* sym_cell(apr_pool_t* pool, char* s)
 	return c;
 }
 
-cell* halting_fun_cell(apr_pool_t* pool, lbuiltin func)
+cell* halting_fun_cell(apr_pool_t* pool, lbuiltin builtin)
 {
 	cell* c = apr_palloc(pool, sizeof(cell));
 	c->type = HALTING_FUN_CELL;
 	c->next_sibling = NULL;
-	c->fun = func;
+	c->builtin = builtin;
 	return c;
 }
 
-cell* fun_cell(apr_pool_t* pool, lbuiltin func) 
+cell* fun_cell(apr_pool_t* pool, lbuiltin builtin) 
 {
 	cell* c = apr_palloc(pool, sizeof(cell));
 	c->type = FUN_CELL;
 	c->next_sibling = NULL;
-	c->fun = func;
+	c->builtin = builtin;
 	return c;
+}
+
+cell* lambda_cell(apr_pool_t* pool, cell* formals, cell* body)
+{
+	cell* v = apr_palloc(pool, sizeof(cell));
+	v->type = FUN_CELL;
+
+	v->builtin = NULL;
+		
+	
+	v->formals = formals;
+	v->body = body;
+	return v;
 }
 
 /* A pointer to a new empty Sexpr lval */
@@ -182,6 +195,6 @@ cell* copy_cell(apr_pool_t* pool, cell* v)
 			vcell = vcell->next_sibling;
 		}
 	}
-	x->fun = v->fun;
+	x->builtin = v->builtin;
 	return x;
 }
