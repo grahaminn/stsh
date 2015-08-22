@@ -5,7 +5,8 @@ Lots of the code is lifted from http://www.buildyourownlisp.com/ which deserves 
 
 This project is built with SCons http://www.scons.org/
 
-Dependencies:-
+Dependencies
 
 Apache Portable Runtime https://apr.apache.org/
+
 Libedit http://thrysoee.dk/editline/
