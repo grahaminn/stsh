@@ -10,3 +10,5 @@ Dependencies
 Apache Portable Runtime https://apr.apache.org/
 
 Libedit http://thrysoee.dk/editline/
+
+Check unit testing framework http://check.sourceforge.net/
