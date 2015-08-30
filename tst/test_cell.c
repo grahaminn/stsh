@@ -7,6 +7,27 @@ START_TEST (test_join_cell)
 {
 	apr_pool_t* pool = NULL;
 	apr_pool_create(&pool, NULL);
+	cell* parenta = sexpr_cell(pool);
+	cell* parentb = sexpr_cell(pool);
+
+	cell* child1 = num_cell(pool, 1);
+	cell* child2 = num_cell(pool, 2);
+
+	cell* childx = sym_cell(pool, "x");
+	cell* childy = sym_cell(pool, "y");
+
+	add_cell(pool, parenta, child1);
+	add_cell(pool, parenta, childx);
+	add_cell(pool, parentb, child2);
+	add_cell(pool, parentb, childy);
+
+	cell* result = join_cell(pool, parenta, parentb);
+	ck_assert_int_eq(4, result->count);
+	ck_assert_ptr_eq(child1, pop_cell(pool, result, 0));
+	ck_assert_ptr_eq(childx, pop_cell(pool, result, 0));
+	ck_assert_ptr_eq(child2, pop_cell(pool, result, 0));
+	ck_assert_ptr_eq(childy, pop_cell(pool, result, 0));
+	ck_assert_int_eq(0, result->count);
 
 	apr_pool_destroy(pool);
 }
