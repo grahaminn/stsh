@@ -99,7 +99,8 @@ cell* pexpr_cell(apr_pool_t* pool)
 
 cell* pop_cell(apr_pool_t* pool, cell* v, int i) 
 {
-	if (v->count == 0) {	printf("v->count == 0 \n");  return NULL; }
+	
+	if (v->count == 0 || i >= v->count) {	return NULL; }
 	/* Find the item at "i" */
 	cell* child = v->first_child;
 	cell* result = NULL;
@@ -120,22 +121,18 @@ cell* pop_cell(apr_pool_t* pool, cell* v, int i)
 	}
 	else
 	{
-		while (child != NULL && --i > 0)
+		cell* previous = NULL;
+		while (child != NULL && i-- > 0)
 		{
-			if (i == 0)
-			{
-				result = child->next_sibling;
-				if (result->next_sibling == NULL)
-				{
-					v->last_child = child;
-				}
-				child->next_sibling = child->next_sibling->next_sibling;
-			}
-			else
-			{
-				child = child->next_sibling;
-			}
+			previous = child;
+			child = child->next_sibling;
 		}
+        result = child;
+        if (result->next_sibling == NULL)
+        {
+			v->last_child = child;
+        }
+        previous->next_sibling = child->next_sibling;
 	}
 	/* Decrease the count of items in the list */
 	--(v->count);
