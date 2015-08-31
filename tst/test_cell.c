@@ -1,7 +1,7 @@
+#include <apr_pools.h>
+
 #include "../src/cell.h"
 #include "test_cell.h"
-
-apr_pool_t* pool;
 
 START_TEST (test_join_cell)
 {

@@ -14,7 +14,7 @@ struct environment
 	apr_hash_t* key_value_hash;
 };
 
-environment* environment_new(apr_pool_t* poll, environment* parent);
+environment* environment_new(apr_pool_t* pool, environment* parent);
 environment* environment_copy(apr_pool_t* pool, environment* env);
 cell* environment_get(apr_pool_t* evaluation_pool, environment* env, char* key);
 void environment_put(environment* env, char* key, cell* value);
