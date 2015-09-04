@@ -54,7 +54,8 @@ int main(int argc, char **argv)
 	while (1)
 	{
 		char *input = readline("stsh> ");
-    
+		if (!input || input[0] == EOF) { free(input); break; }		
+
 		add_history(input);
 		mpc_result_t r;
 		if (mpc_parse("<stdin>", input, stsh, &r)) 

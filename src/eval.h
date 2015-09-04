@@ -3,15 +3,11 @@
 #include "mpc.h"
 #include "cell.h"
 #include "environment.h"
-#include <apr_pools.h>
-#define LASSERT(pool, args, cond, fmt, ...) \
-if (!(cond)) \
-{ \
-    cell* err = err_cell(pool, fmt, ##__VA_ARGS__); \
-    return err; \
-}
+#include "lassert.h"
 
+#include <apr_pools.h>
 
 cell* eval_cell(apr_pool_t* pool, environment* env, cell* c);
 
+cell* call_cell(apr_pool_t* pool, environment* e, cell* function, cell* a);
 #endif

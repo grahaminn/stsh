@@ -23,6 +23,17 @@ START_TEST (test_environment_copy)
 	apr_pool_t* pool = NULL;
     apr_pool_create(&pool, NULL);
 	
+	environment* env = environment_new(pool, NULL);
+	cell* test = sym_cell(pool, "test");
+	environment_put(env, "test", test);
+
+	environment* clone = environment_copy(pool, env);
+ 
+	ck_assert_ptr_ne(clone, NULL);	
+	cell* cloned_test = environment_get(pool, env, "test");	
+	ck_assert_ptr_ne(cloned_test, NULL);	
+	ck_assert_str_eq(cloned_test->sym, "test");	
+
 	apr_pool_destroy(pool);
 }
 END_TEST

@@ -68,15 +68,36 @@ cell* builtin_div(apr_pool_t* pool, environment* env, cell* a)
         return builtin_op(pool, a, "/");
 }
 
+cell* builtin_lambda(apr_pool_t* pool, environment* env, cell* a)
+{
+	LASSERT_NUM(pool, "λ", a, 2);
+	LASSERT_TYPE(pool, "λ", a, 0, SEXPR_CELL);
+	LASSERT_TYPE(pool, "λ", a, 1, SEXPR_CELL);
+
+	cell* first = a->first_child;
+	cell* current = first->first_child;
+	for (int i = 0; i < first->count; i++) 
+	{
+		LASSERT(pool, a, (current->type == SYM_CELL),
+      "Cannot define non-symbol. Got %s, Expected %s.",
+      cell_type_name(current->type), cell_type_name(SYM_CELL));
+		current = current->next_sibling;
+	}
+	cell* formals = pop_cell(pool, a, 0);
+	cell* body = pop_cell(pool, a, 0);
+
+	return lambda_cell(pool, env, formals, body);	
+}
+
 void add_builtin(environment* env, char* name, lbuiltin func)
 {
-        cell* value = fun_cell(env->pool, func);
+        cell* value = fun_cell(env->pool, env, func);
         environment_global_define(env, name, value);
 }
 
 void add_halting_builtin(environment* env, char* name, lbuiltin func)
 {
-        cell* value = halting_fun_cell(env->pool, func);
+        cell* value = halting_fun_cell(env->pool, env, func);
         environment_global_define(env, name, value);
 }
 
@@ -95,7 +116,7 @@ cell* builtin_car(apr_pool_t* pool, environment* env, cell* a)
   
 	if (a->first_child->count == 0) 
 	{
-		return err_cell(pool, "Function 'car' passed {}!");
+		return err_cell(pool, "Function 'car' passed ()!");
 	}
 
 	/* Otherwise take first argument */
@@ -181,6 +202,57 @@ cell* builtin_define(apr_pool_t* pool, environment* env, cell* a)
 	environment_global_define(env, name->sym, copy_cell(pool, value_cell));
 
 	return value_cell;
+}
+
+cell* builtin_var(environment* env, cell* a, char* func)
+{
+	LASSERT_TYPE(env->pool, func, a, 0, SEXPR_CELL);
+
+	cell* syms = a->first_child;
+
+	cell* current_sym = syms->first_child;
+	for(int i = 0; i < syms->count; i++) 
+	{
+		LASSERT(env->pool, a, (current_sym->type == SYM_CELL),
+		"Function '%s' cannot define non-symbol. "
+		"Got %s, Expected %s.", func, 
+		cell_type_name(current_sym->type),
+		cell_type_name(SYM_CELL));
+		current_sym = current_sym->next_sibling; 
+	}
+
+	LASSERT(env->pool, a, (syms->count == a->count-1),
+    "Function '%s' passed too many arguments for symbols. "
+    "Got %i, Expected %i.", func, syms->count, a->count-1);
+	
+	current_sym = syms->first_child;
+	cell* currenta = a->first_child->next_sibling;
+	for (int i = 0; i < syms->count; i++)
+	{
+		if (strcmp(func, "define") == 0) 
+		{
+			environment_global_define(env, current_sym->sym, currenta); 
+		}
+		
+		if (strcmp(func, "let") == 0)
+		{
+			environment_put(env, current_sym->sym, currenta);
+		}
+		current_sym = current_sym->next_sibling;
+		currenta = currenta->next_sibling;
+	}
+
+	return sexpr_cell(env->pool);
+}
+
+cell* builtin_put(environment* env, cell* a)
+{
+    return builtin_var(env, a, "let");
+}
+
+cell* builtin_def(environment* env, cell* a)
+{
+    return builtin_var(env, a, "define");
 }
 
 void add_builtins(environment* env)

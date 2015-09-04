@@ -1,11 +1,25 @@
-#include "environment.h"
+#include "builtins.h"
 #include "cell.h"
+#include "environment.h"
 #include "print.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+char* cell_type_name(int t) 
+{
+	switch(t) 
+	{
+		case FUN_CELL: return "Function";
+		case NUM_CELL: return "Number";
+		case ERR_CELL: return "Error";
+		case SYM_CELL: return "Symbol";
+		case SEXPR_CELL: return "S-Expression";
+		case PEXPR_CELL: return "P-Expression";
+		default: return "Unknown";
+	}
+}
 
 /* Construct a pointer to a new Number cell */ 
 cell* num_cell(apr_pool_t* pool, long x) 
@@ -42,35 +56,35 @@ cell* sym_cell(apr_pool_t* pool, char* s)
 	return c;
 }
 
-cell* halting_fun_cell(apr_pool_t* pool, lbuiltin builtin)
+cell* halting_fun_cell(apr_pool_t* pool, environment* parent, lbuiltin builtin)
 {
 	cell* c = apr_palloc(pool, sizeof(cell));
 	c->type = HALTING_FUN_CELL;
+	c->env = environment_new(pool, parent);
 	c->next_sibling = NULL;
 	c->builtin = builtin;
 	return c;
 }
 
-cell* fun_cell(apr_pool_t* pool, lbuiltin builtin) 
+cell* fun_cell(apr_pool_t* pool, environment* parent, lbuiltin builtin) 
 {
 	cell* c = apr_palloc(pool, sizeof(cell));
 	c->type = FUN_CELL;
+	c->env = environment_new(pool, parent);
 	c->next_sibling = NULL;
 	c->builtin = builtin;
 	return c;
 }
 
-cell* lambda_cell(apr_pool_t* pool, cell* formals, cell* body)
+cell* lambda_cell(apr_pool_t* pool, environment* parent, cell* formals, cell* body)
 {
-	cell* v = apr_palloc(pool, sizeof(cell));
-	v->type = FUN_CELL;
-
-	v->builtin = NULL;
-		
-	
-	v->formals = formals;
-	v->body = body;
-	return v;
+	cell* c = apr_palloc(pool, sizeof(cell));
+	c->type = FUN_CELL;
+	c->env = environment_new(pool, parent);
+	c->builtin = NULL;
+	c->formals = formals;
+	c->body = body;
+	return c;
 }
 
 /* A pointer to a new empty Sexpr lval */

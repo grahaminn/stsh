@@ -24,6 +24,20 @@ void print_cell(cell* v)
 		case NUM_CELL:   printf("%li", v->num); break;
 		case ERR_CELL:   printf("Error: %s", v->err); break;
 		case SYM_CELL:   printf("%s", v->sym); break;
+		case FUN_CELL: 
+			if (v->builtin) 
+			{
+				printf("<builtin>");
+			} 
+			else 
+			{
+				printf("(λ "); 
+				print_cell(v->formals);
+				putchar(' '); 
+				print_cell(v->body); 
+				putchar(')');
+			}
+			break;
 		case SEXPR_CELL: cell_expr_print(v, '(', ')'); break;
 		case PEXPR_CELL: cell_expr_print(v, '[', ']'); break;
 	}

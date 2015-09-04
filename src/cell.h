@@ -12,6 +12,8 @@ typedef cell* (*lbuiltin) (apr_pool_t*, environment*, cell*);
 
 enum { ERR_CELL, NUM_CELL, SYM_CELL, HALTING_FUN_CELL, FUN_CELL, SEXPR_CELL, PEXPR_CELL};
 
+char* cell_type_name(int t);
+
 typedef struct cell 
 {
 	int type;
@@ -35,11 +37,11 @@ typedef struct cell
 	struct cell* next_sibling;
 } cell;
 
-cell* halting_fun_cell(apr_pool_t* pool, lbuiltin func);
+cell* halting_fun_cell(apr_pool_t* pool, environment* parent, lbuiltin func);
 
-cell* fun_cell(apr_pool_t* pool, lbuiltin func);
+cell* fun_cell(apr_pool_t* pool, environment* parent, lbuiltin func);
 
-cell* lambda_cell(apr_pool_t* pool, cell* formals, cell* body);
+cell* lambda_cell(apr_pool_t* pool, environment* parent, cell* formals, cell* body);
 
 cell* num_cell(apr_pool_t* pool, long x);
 
@@ -58,4 +60,5 @@ cell* pop_cell(apr_pool_t* pool, cell* v, int i);
 cell* add_cell(apr_pool_t* pool, cell* v, cell* x);
 
 cell* copy_cell(apr_pool_t* pool, cell* c);
+
 #endif
