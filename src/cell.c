@@ -81,7 +81,6 @@ cell* lambda_cell(apr_pool_t* pool, environment* parent, cell* formals, cell* bo
 	cell* c = apr_palloc(pool, sizeof(cell));
 	c->type = FUN_CELL;
 	c->env = environment_new(pool, parent);
-	c->builtin = NULL;
 	c->formals = formals;
 	c->body = body;
 	return c;

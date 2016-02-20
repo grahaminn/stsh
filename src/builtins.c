@@ -70,9 +70,9 @@ cell* builtin_div(apr_pool_t* pool, environment* env, cell* a)
 
 cell* builtin_lambda(apr_pool_t* pool, environment* env, cell* a)
 {
-	LASSERT_NUM(pool, "λ", a, 2);
-	LASSERT_TYPE(pool, "λ", a, 0, SEXPR_CELL);
-	LASSERT_TYPE(pool, "λ", a, 1, SEXPR_CELL);
+	LASSERT_NUM(pool, "lambda", a, 2);
+	LASSERT_TYPE(pool, "lambda", a, 0, SEXPR_CELL);
+	LASSERT_TYPE(pool, "lambda", a, 1, SEXPR_CELL);
 
 	cell* first = a->first_child;
 	cell* current = first->first_child;
@@ -266,6 +266,7 @@ void add_builtins(environment* env)
 		/* language primitives */
 	add_builtin(env, "define", builtin_define);
 	add_halting_builtin(env, "if", builtin_if);
+	add_builtin(env, "lambda", builtin_lambda);
 
         /* Mathematical Functions */
 	add_builtin(env, "+", builtin_add);

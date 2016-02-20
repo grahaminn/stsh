@@ -36,7 +36,7 @@ cell* sexpr_cell_eval(apr_pool_t* pool, environment* env, cell* v)
     /* Single Expression */
     if (v->count == 1) { return pop_cell(pool, v, 0); }
  	cell* f = pop_cell(pool, v, 0);
-	if (f->type != FUN_CELL && f->type != HALTING_FUN_CELL)
+	if (f->type != FUN_CELL && f->type != HALTING_FUN_CELL && f->type != LAMBDA_CELL)
     {
 		return err_cell(pool, "first element is not a function.");
     }

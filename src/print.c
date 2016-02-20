@@ -31,7 +31,7 @@ void print_cell(cell* v)
 			} 
 			else 
 			{
-				printf("(λ "); 
+				printf("(lambda "); 
 				print_cell(v->formals);
 				putchar(' '); 
 				print_cell(v->body); 
