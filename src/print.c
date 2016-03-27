@@ -27,7 +27,7 @@ void print_cell(cell* v)
 		case FUN_CELL: 
 			if (v->builtin) 
 			{
-				printf("<builtin>");
+				printf("<builtin>:%s",v->sym);
 			} 
 			else 
 			{

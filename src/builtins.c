@@ -13,6 +13,7 @@ cell* builtin_op(apr_pool_t* pool, cell* a, char* op)
 	{
     	if (child->type != NUM_CELL) 
 		{
+printf("error cell:"); print_cell(a);
       		return err_cell(pool, "Cannot operate on non-number!");
     	}
 		child = child->next_sibling;

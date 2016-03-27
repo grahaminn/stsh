@@ -80,6 +80,7 @@ cell* lambda_cell(apr_pool_t* pool, environment* parent, cell* formals, cell* bo
 {
 	cell* c = apr_palloc(pool, sizeof(cell));
 	c->type = FUN_CELL;
+	c->builtin = NULL;
 	c->env = environment_new(pool, parent);
 	c->formals = formals;
 	c->body = body;
@@ -183,6 +184,7 @@ cell* join_cell(apr_pool_t* pool, cell* x, cell* y)
 
 cell* copy_cell(apr_pool_t* pool, cell* v)
 {
+	if (v == NULL) return NULL;
 	cell* x = apr_palloc(pool, sizeof(cell));
 	x->type = v->type;
 	if (v->sym != NULL)
@@ -205,6 +207,8 @@ cell* copy_cell(apr_pool_t* pool, cell* v)
 			vcell = vcell->next_sibling;
 		}
 	}
+    x->formals = copy_cell(pool, v->formals);
+    x->body = copy_cell(pool, v->body);
 	x->builtin = v->builtin;
 	return x;
 }

@@ -10,7 +10,7 @@ typedef struct cell cell;
 
 typedef cell* (*lbuiltin) (apr_pool_t*, environment*, cell*);
 
-enum { ERR_CELL, NUM_CELL, SYM_CELL, HALTING_FUN_CELL, FUN_CELL, SEXPR_CELL, PEXPR_CELL};
+enum { ERR_CELL, NUM_CELL, SYM_CELL, LAMBDA_CELL, HALTING_FUN_CELL, FUN_CELL, SEXPR_CELL, PEXPR_CELL};
 
 char* cell_type_name(int t);
 
@@ -27,8 +27,8 @@ typedef struct cell
 	/* Function */
 	lbuiltin builtin;
 	environment* env;
-	cell* formals;
-	cell* body;
+	struct cell* formals;
+	struct cell* body;
 
 	/* Count and Pointer to a list of "cell*" */
 	int count;
