@@ -188,20 +188,30 @@ cell* builtin_if(apr_pool_t* pool, environment* env, cell* a)
 
 cell* builtin_define(apr_pool_t* pool, environment* env, cell* a) 
 {
-	LASSERT(pool, a, a->first_child->type == SYM_CELL, "Function 'define' passed incorrect type!");
-
 	/* First argument is symbol list */
-	cell* name = pop_cell(pool, a, 0);
+	char* key = NULL;
+	cell* value_cell = NULL;
+	if (a->first_child->type == SYM_CELL)
+	{
+		cell* key_cell = pop_cell(pool, a, 0);
+		LASSERT(pool, key_cell, 0, "Variable names must be symbols");
+		key = key_cell->sym;
+		cell* popped_cell = pop_cell(pool, a, 0);
+	    value_cell = eval_cell(pool, env, popped_cell);
+	}
+	else if (a->first_child->type == SEXPR_CELL)
+	{
+		cell* key_cell = pop_cell(pool, a->first_child, 0);
+		LASSERT(pool, key_cell, 0, "Function names must be symbols");
+		key = key_cell->sym;
+		value_cell = builtin_lambda(pool, env, a);
+	}
+	else
+	{
+		LASSERT(pool, a, 0, "Function 'define' cannot define non-symbol");
+	}
 
-	LASSERT(pool, a, name->type == SYM_CELL, "Function 'define' cannot define non-symbol");
-
-	/* Check correct number of symbols and values */
-	LASSERT(pool, a, a->count == 1, "Function 'define' cannot define incorrect number of values to symbols, value count: %i", a->count);
-
-	cell* popped_cell = pop_cell(pool, a, 0);
-	cell* value_cell = eval_cell(pool, env, popped_cell);
-	environment_global_define(env, name->sym, copy_cell(pool, value_cell));
-
+	environment_global_define(env, key, copy_cell(pool, value_cell));
 	return value_cell;
 }
 
